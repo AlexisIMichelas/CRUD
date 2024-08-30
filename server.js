@@ -15,45 +15,39 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
-// route POST pour recevoir un fichier
-router.post("/api/image", upload.single("image"), (req, res) => {
-	// On récupère le nom du fichier
-	const { originalname } = req.file;
+// Route POST pour recevoir un fichier
+app.post("/api/image", upload.single("image"), (req, res) => {
+  // On récupère le nom du fichier
+  const { originalname, filename } = req.file;
 
-	// On récupère le nom du fichier
-	const { filename } = req.file;
-
-	// On utilise la fonction rename de fs pour renommer le fichier
-	fs
-		.rename(`./public/uploads/${filename}`, `./public/uploads/${uuidv4()}-${originalname}`, (err) => {
-			if (err) throw err;
-			res.send("File uploaded");
-		});
+  // On utilise la fonction rename de fs pour renommer le fichier
+  fs.rename(`./app/uploads/${filename}`, `./app/uploads/${uuidv4()}-${originalname}`, (err) => {
+    if (err) throw err;
+    res.send("File uploaded");
+  });
 });
 
-
-
-// parse requests of content-type - application/json
+// Parse requests of content-type - application/json
 app.use(express.json());  /* bodyParser.json() is deprecated */
 
-// parse requests of content-type - application/x-www-form-urlencoded
+// Parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));   /* bodyParser.urlencoded() is deprecated */
 
 const db = require("./app/models");
 db.sequelize.sync();
-// // drop the table if it already exists
+// // Drop the table if it already exists
 // db.sequelize.sync({ force: true }).then(() => {
 //   console.log("Drop and re-sync db.");
 // });
 
-// simple route
+// Simple route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to bezkoder application." });
 });
 
-require("./app/routes/turorial.routes")(app);
+require("./app/routes/tutorial.routes")(app);
 
-// set port, listen for requests
+// Set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
